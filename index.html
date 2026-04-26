@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dublaj AI - Yapay Zeka ile Video Dublaj</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🎙️</span>
+                <h1>Dublaj<span class="accent">AI</span></h1>
+            </div>
+            <p class="subtitle">Yapay Zeka ile Otomatik Video Dublajı</p>
+        </header>
+
+        <section class="api-section card">
+            <h3>🔑 ElevenLabs API Anahtarı</h3>
+            <div class="input-group">
+                <input type="password" id="apiKey" placeholder="ElevenLabs API anahtarınızı girin..." value="sk_5fbe34c76bd3e993d620ba42f3dbff9aaf2a4cf81bbc81cc">
+                <button id="toggleKey" class="btn-icon" title="Göster/Gizle">👁️</button>
+            </div>
+            <p class="hint">ElevenLabs.io hesabınızdan API anahtarı alabilirsiniz</p>
+        </section>
+
+        <section class="upload-section card">
+            <h3>📹 Video Yükleyin</h3>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <p><strong>Videoyu sürükleyin veya tıklayın</strong></p>
+                    <p class="hint">MP4, MOV, AVI, WebM desteklenir</p>
+                </div>
+                <video id="preview" style="display:none" controls></video>
+                <input type="file" id="videoInput" accept="video/*" hidden>
+            </div>
+            <div class="file-info" id="fileInfo" style="display:none">
+                <span id="fileName"></span>
+                <span id="fileSize"></span>
+                <button id="removeVideo" class="btn-small">✕</button>
+            </div>
+        </section>
+
+        <section class="options-section card" id="optionsSection" style="display:none">
+            <h3>⚙️ Dublaj Ayarları</h3>
+            <div class="options-grid">
+                <div class="option">
+                    <label>Hedef Dil</label>
+                    <select id="targetLang">
+                        <option value="en">İngilizce</option>
+                        <option value="de">Almanca</option>
+                        <option value="fr">Fransızca</option>
+                        <option value="es">İspanyolca</option>
+                        <option value="it">İtalyanca</option>
+                        <option value="pt">Portekizce</option>
+                        <option value="ja">Japonca</option>
+                        <option value="ko">Korece</option>
+                        <option value="zh">Çince</option>
+                        <option value="ar">Arapça</option>
+                        <option value="ru">Rusça</option>
+                        <option value="tr" selected>Türkçe</option>
+                    </select>
+                </div>
+                <div class="option">
+                    <label>Ses (Voice ID)</label>
+                    <input type="text" id="voiceId" value="JBFqnCBsd6RMkjVDRZzb" placeholder="ElevenLabs Voice ID">
+                </div>
+                <div class="option">
+                    <label>Segment Eşiği (saniye)</label>
+                    <input type="number" id="segmentThreshold" value="0.8" min="0.3" max="3" step="0.1">
+                </div>
+                <div class="option">
+                    <label>Stabilite</label>
+                    <input type="range" id="stability" min="0" max="1" step="0.1" value="0.5">
+                    <span id="stabilityVal">0.5</span>
+                </div>
+                <div class="option">
+                    <label>Benzerlik Gücü</label>
+                    <input type="range" id="similarity" min="0" max="1" step="0.1" value="0.8">
+                    <span id="similarityVal">0.8</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="process-section card" id="processSection" style="display:none">
+            <h3>⚡ Dublaj Süreci</h3>
+            <div class="progress-container">
+                <div class="progress-step" id="step1">
+                    <div class="step-icon">🎬</div>
+                    <div class="step-info">
+                        <span class="step-title">Ses Ayıklama</span>
+                        <span class="step-status" id="status1">Bekleniyor</span>
+                    </div>
+                    <div class="step-spinner" id="spinner1" style="display:none"></div>
+                    <div class="step-check" id="check1" style="display:none">✅</div>
+                </div>
+                <div class="progress-step" id="step2">
+                    <div class="step-icon">📝</div>
+                    <div class="step-info">
+                        <span class="step-title">Konuşma Tanıma (STT)</span>
+                        <span class="step-status" id="status2">Bekleniyor</span>
+                    </div>
+                    <div class="step-spinner" id="spinner2" style="display:none"></div>
+                    <div class="step-check" id="check2" style="display:none">✅</div>
+                </div>
+                <div class="progress-step" id="step3">
+                    <div class="step-icon">🌐</div>
+                    <div class="step-info">
+                        <span class="step-title">Çeviri</span>
+                        <span class="step-status" id="status3">Bekleniyor</span>
+                    </div>
+                    <div class="step-spinner" id="spinner3" style="display:none"></div>
+                    <div class="step-check" id="check3" style="display:none">✅</div>
+                </div>
+                <div class="progress-step" id="step4">
+                    <div class="step-icon">🔊</div>
+                    <div class="step-info">
+                        <span class="step-title">Seslendirme (TTS)</span>
+                        <span class="step-status" id="status4">Bekleniyor</span>
+                    </div>
+                    <div class="step-spinner" id="spinner4" style="display:none"></div>
+                    <div class="step-check" id="check4" style="display:none">✅</div>
+                </div>
+                <div class="progress-step" id="step5">
+                    <div class="step-icon">🎞️</div>
+                    <div class="step-info">
+                        <span class="step-title">Video + Ses Birleştirme</span>
+                        <span class="step-status" id="status5">Bekleniyor</span>
+                    </div>
+                    <div class="step-spinner" id="spinner5" style="display:none"></div>
+                    <div class="step-check" id="check5" style="display:none">✅</div>
+                </div>
+            </div>
+            
+            <div class="segment-preview" id="segmentPreview" style="display:none">
+                <h4>📋 Bulunan Segmentler</h4>
+                <div id="segmentList"></div>
+            </div>
+
+            <button id="startBtn" class="btn-primary" disabled>
+                <span>🚀</span> Dublajı Başlat
+            </button>
+            <button id="cancelBtn" class="btn-secondary" style="display:none">
+                İptal Et
+            </button>
+        </section>
+
+        <section class="result-section card" id="resultSection" style="display:none">
+            <h3>✅ Dublaj Tamamlandı!</h3>
+            <div class="result-player">
+                <video id="resultVideo" controls style="width:100%;max-height:400px;border-radius:12px"></video>
+            </div>
+            <div class="result-actions">
+                <button id="downloadBtn" class="btn-primary">
+                    ⬇️ Videoyu İndir
+                </button>
+                <button id="resetBtn" class="btn-secondary">
+                    🔄 Yeni Dublaj
+                </button>
+            </div>
+        </section>
+
+        <section class="logs-section card">
+            <h3>📜 İşlem Kaydı</h3>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry info">Sistem hazır. Video yükleyin ve dublajı başlatın.</div>
+            </div>
+            <button id="clearLogs" class="btn-small">Temizle</button>
+        </section>
+
+        <footer>
+            <p>Dublaj AI - ElevenLabs API ile çalışır. Videolar tarayıcınızda işlenir, sunucuya kaydedilmez.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
